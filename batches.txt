@@ -1,0 +1,6 @@
+tithonus2 batches - signed statement: the anchoring batches tithonus.org has published, as of 2026-10-19T20:52:12Z
+time 2026-10-19T20:52:12Z
+batch 1 created 2026-10-17T22:07:23Z n 6 root 23561a40af93bcf255b806f74db719ef366117576c0e88cb38e554448f2cb15a nonce a699f94c2c5753461ed927b5cb03afbf digest 70d1455b4f87e48da8030f1426d7eda5b049b5f0b8f6e1ee5cb84e82488b2f17 status complete block 971914
+key 1
+sig -mkbY_Tvfg5ey226AfJKEJ_9f47f6R-le6HQUg0Io2EmgFhFKPLBT_P6LpmW-hLNQRQaKCBNRwFTvMDG3rrSCg
+rule digest = sha256(root || nonce); each stamp's .ots proof leads to its batch's digest
