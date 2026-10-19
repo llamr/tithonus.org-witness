@@ -1,0 +1,40 @@
+name: witness
+
+on:
+  schedule:
+    - cron: "19 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  witness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the signed batch list
+        run: |
+          set -eu
+          curl -fsS --retry 3 --max-time 30 \
+            -A "tithonus-witness (+https://github.com/llamr/tithonus.org-witness)" \
+            https://tithonus.org/batches -o batches.txt.new
+          grep -q '^tithonus2 batches' batches.txt.new
+          mv batches.txt.new batches.txt
+
+      - name: Append new batch lines to the permanent log
+        run: |
+          set -eu
+          touch log.txt
+          { cat log.txt; grep '^batch ' batches.txt || true; } | sort -u | sort -s -t ' ' -k2,2n > log.txt.new
+          mv log.txt.new log.txt
+
+      - name: Commit
+        run: |
+          set -eu
+          git config user.name "tithonus-witness"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add batches.txt log.txt
+          git diff --cached --quiet || git commit -m "witness $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push
