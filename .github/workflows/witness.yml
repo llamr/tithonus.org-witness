@@ -1,5 +1,9 @@
 name: witness
 
+# Every few hours (GitHub decides exactly when), copy tithonus.org's signed batch list into this repository,
+# then check it with things tithonus does not control: the key pinned below, SHA-256, the clock, and this
+# repository's own history. The record is committed first, so evidence is kept even when a check fails.
+# A failed check fails the run, and GitHub emails this repository's owner.
 on:
   schedule:
     - cron: "19 * * * *"
@@ -8,20 +12,23 @@ on:
 permissions:
   contents: write
 
+env:
+  TITHONUS_KEY: tUfJIu9LST4xyh5eBZQqtY20TKNEjJBHXGGysdZv9AE  # key 1, pinned: a different key is a failure, not an update
+
 jobs:
   witness:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - name: Fetch the signed batch list
+      - name: Fetch the signed batch list and key status
         run: |
           set -eu
-          curl -fsS --retry 3 --max-time 30 \
-            -A "tithonus-witness (+https://github.com/llamr/tithonus.org-witness)" \
-            https://tithonus.org/batches -o batches.txt.new
+          UA="tithonus-witness (+https://github.com/llamr/tithonus.org-witness)"
+          curl -fsS --retry 3 --max-time 30 -A "$UA" https://tithonus.org/batches -o batches.txt.new
           grep -q '^tithonus2 batches' batches.txt.new
           mv batches.txt.new batches.txt
+          curl -fsS --retry 3 --max-time 30 -A "$UA" https://tithonus.org/keys -o keys.txt
 
       - name: Append new batch lines to the permanent log
         run: |
@@ -38,3 +45,70 @@ jobs:
           git add batches.txt log.txt
           git diff --cached --quiet || git commit -m "witness $(date -u +%Y-%m-%dT%H:%MZ)"
           git push
+
+      - name: Check signature, digests, history, liveness and key
+        run: |
+          export KEYS_TXT="$(cat keys.txt)"
+          cat > check.mjs <<'EOF'
+          // Checks what tithonus served, using only things outside tithonus's control: the key pinned in this workflow,
+          // SHA-256, the clock, and this repository's own history (log.txt). Exit 1 on any problem, so GitHub emails the owner.
+          import { createPublicKey, verify, createHash } from "node:crypto";
+          import { readFileSync } from "node:fs";
+          const KEY = process.env.TITHONUS_KEY;
+          const NOW = Date.parse(process.env.NOW || new Date().toISOString());
+          const problems = [];
+          const H = 3600000;
+
+          // 1. signature: every byte before the "sig " line, verified with the pinned key (not the one /keys serves today)
+          const body = readFileSync("batches.txt", "utf8");
+          const at = body.indexOf("\nsig ");
+          if (at < 0) problems.push("batches.txt has no sig line");
+          else {
+            const pub = createPublicKey({ key: { kty: "OKP", crv: "Ed25519", x: KEY }, format: "jwk" });
+            const sig = Buffer.from(body.slice(at + 5).split("\n")[0], "base64url");
+            if (!verify(null, Buffer.from(body.slice(0, at + 1)), pub, sig)) problems.push("signature on /batches does not verify with pinned key 1");
+          }
+
+          const parse = (l) => { const f = l.trim().split(" "), o = {}; for (let i = 0; i + 1 < f.length; i += 2) o[f[i]] = f[i + 1]; o.id = Number(o.batch); return o; };
+          const cur = body.split("\n").filter((l) => l.startsWith("batch ")).map(parse);
+          const log = readFileSync("log.txt", "utf8").split("\n").filter((l) => l.startsWith("batch ")).map(parse);
+
+          // 2. every published digest = sha256(root || nonce)
+          for (const b of cur) {
+            const d = createHash("sha256").update(Buffer.from(b.root + b.nonce, "hex")).digest("hex");
+            if (d !== b.digest) problems.push(`batch ${b.id}: digest is not sha256(root || nonce)`);
+          }
+
+          // 3. history never changes: same id -> same created, n, root, nonce, digest; one block once complete
+          const seen = new Map();
+          for (const b of log) {
+            const s = seen.get(b.id);
+            if (!s) { seen.set(b.id, b); continue; }
+            for (const k of ["created", "n", "root", "nonce", "digest"]) if (s[k] !== b[k]) problems.push(`batch ${b.id}: ${k} changed after publication (${s[k]} -> ${b[k]})`);
+            if (s.block && b.block && s.block !== b.block) problems.push(`batch ${b.id}: bitcoin block changed (${s.block} -> ${b.block})`);
+            if (b.block && !s.block) seen.set(b.id, { ...s, block: b.block });
+          }
+
+          // 4. nothing dropped: ids in the current list are consecutive, and every logged batch inside the 7-day window is still listed
+          const ids = cur.map((b) => b.id).sort((a, b) => a - b);
+          const top = ids.length ? ids[ids.length - 1] : 0;
+          for (let i = 1; i < ids.length; i++) if (ids[i] !== ids[i - 1] + 1 && ids[i - 1] > top - 168) problems.push(`batches ${ids[i - 1] + 1}..${ids[i] - 1} missing from /batches`);
+          const listed = new Set(ids);
+          for (const id of seen.keys()) if (id > top - 168 && !listed.has(id)) problems.push(`batch ${id} was published before but is gone from /batches`);
+          for (const b of log) if (b.id > top) problems.push(`batch ${b.id} was published before but /batches now stops at ${top}`);
+
+          // 5. alive: tithonus makes a batch every hour (its canary), so the newest must be recent; nothing pending over 24h
+          const newest = cur.find((b) => b.id === top);
+          if (!newest) problems.push("no batches listed");
+          else if (NOW - Date.parse(newest.created) > 2 * H) problems.push(`newest batch ${top} was created ${Math.round((NOW - Date.parse(newest.created)) / 60000)} min ago: the hourly job has stopped`);
+          for (const b of cur) if (b.status !== "complete" && NOW - Date.parse(b.created) > 24 * H) problems.push(`batch ${b.id} still ${b.status} after 24h`);
+
+          // 6. key status: /keys must still list the pinned key and no revocation
+          const keys = process.env.KEYS_TXT || "";
+          if (!keys.includes(`key 1 ed25519 ${KEY}`)) problems.push("/keys no longer lists the pinned key 1");
+          if (!/^revoked none$/m.test(keys)) problems.push("/keys reports a revocation or no revocation line");
+
+          if (problems.length) { console.log("PROBLEMS:\n- " + problems.join("\n- ")); process.exit(1); }
+          console.log(`ok: signature, ${cur.length} digests, ${seen.size} batches of history, newest batch ${top} at ${newest.created}, key 1 not revoked`);
+          EOF
+          node check.mjs
