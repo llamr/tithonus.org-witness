@@ -1,8 +1,5 @@
-tithonus2 batches - signed statement: the anchoring batches tithonus.org has published, as of 2026-11-07T20:18:13Z
-time 2026-11-07T20:18:13Z
-batch 289 created 2026-10-31T21:07:29Z n 2 root b53a7e54c112c23e31a60c1342a4907fd3665872b7984b809fa3b10b7096268e nonce 1a7f66cbc92003889c47794db15c3640 digest c7fbaf13b1257628a6c73a2164ec67af831e89f5875916e369d6a58640f7bcbf status complete block 974029
-batch 290 created 2026-10-31T22:07:30Z n 2 root a9284f9c3fe2616e3f23b45e2bcba61d17af563234acfaef11b0bd546bd67438 nonce 967aaec5f2e85adc0d45bb39c14c9f89 digest 3e03ac4e6c98f5d870d285e628e2107eba77f56b15586acd9386daf53b225e62 status complete block 974032
-batch 291 created 2026-10-31T23:07:29Z n 2 root caa4e403aa2de76a4e7d202309a62fd50582c7c364ef6541fc086785aad0ae83 nonce e869286a1130d0c6145d9cc9ca32b88b digest 2cc869c4ed12542f338839de9f03d9aa79d9f30fd7c38343f92b981b3aa4f163 status complete block 974039
+tithonus2 batches - signed statement: the anchoring batches tithonus.org has published, as of 2026-11-07T23:42:31Z
+time 2026-11-07T23:42:31Z
 batch 292 created 2026-11-01T00:07:26Z n 2 root 628433d132a2a24b73647b78f73b457a985685b7a3970ebe052668768f59b36d nonce 791e4feed8ef11f1eae6233cfb0e50ce digest 3d4f49765f933d94e441408409071eeea2bf78f1b034df8b94dd5dd31af22353 status complete block 974045
 batch 293 created 2026-11-01T01:07:24Z n 2 root d23eec2bd12172a2f4bf08d3d46c00b08e22f95b89a35b0fb6d53f7ff35f7ed7 nonce dc4179476c58ff0decadc28f013a0d01 digest 3b4de87c25bf0350cd93a0793a7b2df87cd6ab058a942ff575171f9e3eba6feb status complete block 974054
 batch 294 created 2026-11-01T02:07:26Z n 2 root 5f4ee8b645ede312ece5a05aa45c705bfa39b3b16ed1ccd21f54785c6b2c7777 nonce 219faaa6d6c159bc9659581d52f0c414 digest 72876ecdf7a4311a438809ac2e58ab9b08f2c5b7b3de003bd755990f36ddcec0 status complete block 974062
@@ -167,7 +164,10 @@ batch 452 created 2026-11-07T16:07:27Z n 2 root c5925a6690c33ea3de4816463ce2b2c5
 batch 453 created 2026-11-07T17:07:26Z n 2 root 0d126026aeb4610e0f1792981e4740a8c03c70c634252101ba652ab7e53967fa nonce 1a35ec79a410a3a49de9ab3c529006b7 digest 335c4dd1e437cb875a836c33862324da22f4cc40804c37d437c0219450b081ab status complete block 974956
 batch 454 created 2026-11-07T18:07:26Z n 2 root 36512a4a95486af11c4b3ad645bf0355c779449818dc80e984a43127f860d15c nonce 42549250a8ec9a47ede98a29540b1c0c digest 1f9e9ca897f8ab0cda79ee331d722dc196be14422dc3b45933fe8e4774ba13bd status complete block 974959
 batch 455 created 2026-11-07T19:07:25Z n 2 root ffe438400c2768b564ab772fa27b3f39989b2c168388686208a308e283d84824 nonce f9e7d45a72b10cf24eddeed4eb947ed7 digest 6aa399f6b4fc3b0b50b3dc4a8128b6b9436b0cd46788e8171d923d4b572c8472 status complete block 974970
-batch 456 created 2026-11-07T20:07:25Z n 2 root 7bf1546c3a5dec379cf14be4650d7c9d54527f46c5bf69c6b04bbbe5f5138352 nonce c3f684d9038f4d3397869700347a33a0 digest 24dfc1b6c6275166032160eb56badecc98060da772399d8cd47f46ed627ac0e0 status pending
+batch 456 created 2026-11-07T20:07:25Z n 2 root 7bf1546c3a5dec379cf14be4650d7c9d54527f46c5bf69c6b04bbbe5f5138352 nonce c3f684d9038f4d3397869700347a33a0 digest 24dfc1b6c6275166032160eb56badecc98060da772399d8cd47f46ed627ac0e0 status complete block 974981
+batch 457 created 2026-11-07T21:07:26Z n 2 root dfb01f20c419a32f8fe5c166feca7fd127f82832dbf8e9f5fd09fe43834a2a70 nonce 131f168f162ecbc6915074642441bd52 digest 8b7a0f3dd15d94f06f7f5f96093cdcccbe5686dc6f1387c85511e1e5efef4b34 status complete block 974986
+batch 458 created 2026-11-07T22:07:25Z n 2 root 7ae9c7fe3ab491d5ba525f2ab24725c6bd2324bb892932e1ec5f358710a29b30 nonce 2fed875db1e1365b38af909ea4265dd0 digest a35c99dec5432ca73732c25aa2b495bfe88c16b6f32433131da43a33b5eb412b status complete block 974994
+batch 459 created 2026-11-07T23:07:24Z n 2 root a3b265961022bd7f21953f126bc0d3c41b84dcfc32bc10340b2812d9ce7b3216 nonce d164614209383892416ac888d760c893 digest 0eaa499cf9276ff023cae0e3a6ce74454f2bb3209ead0b72997d5c5c8048a28a status pending
 key 1
-sig -D563GYhDHen5eWosodacxRzOZ2kNiPPiMc-HBBb2IJbnpNjXygh1pL9ReoDgPhYgrXNFap228KYZWjz0twJAA
+sig bce9HSQb-XVQ7E4CKFqOnEsqbJWoYKvYVLKRQdx89ePUDAH5auTtQgxhFHyo5nCwraanoRhC1NxCkCM-CoJ6BQ
 rule digest = sha256(root || nonce); each stamp's .ots proof leads to its batch's digest
